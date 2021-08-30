@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link href="darkmode.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poiret+One&display=swap" rel="stylesheet">
+  <title>Mandelbrot</title>
+</head>
+<body>
+<canvas id="canvas" width="300" height="300" onmousewheel="draw()"></canvas>
+<script type="text/javascript">
+const maxiteration = 80
+function mandelbrot(c) {
+    let z = { x: 0, y: 0 }, n = 0, p, d;
+    do {
+        p = {
+            x: Math.pow(z.x, 2) - Math.pow(z.y, 2),
+            y: 2 * z.x * z.y
+        }
+        z = {
+            x: p.x + c.x,
+            y: p.y + c.y
+        }
+        d = Math.sqrt(Math.pow(z.x, 2) + Math.pow(z.y, 2))
+        n += 1
+    } while (d <= 2 && n < maxiteration)
+    return [n, d <= 2]
+};
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+const w = window.innerWidth;
+const h = (w/4)*3;
+ctx.canvas.width = w;
+ctx.canvas.height = h;
+const realset = { start: -2, end: 1 }
+const imaginaryset = { start: -1, end: 1 }
+
+const colors = new Array(16).fill(0).map((_, i) => i === 0 ? '#000' : `#${((1 << 24) * Math.random() | 0).toString(16)}`)
+
+function draw() {
+    for (let i = 0; i < w; i++) {
+        for (let j = 0; j < h; j++) {
+            complex = {
+                x: realset.start + (i / w) * (realset.end - realset.start),
+                y: imaginaryset.start + (j / h) * (imaginaryset.end - imaginaryset.start)
+            }
+
+            const [m, isMandelbrotSet] = mandelbrot(complex)
+            ctx.fillStyle = colors[isMandelbrotSet ? 0 : (m % colors.length - 1) + 1]
+            ctx.fillRect(i, j, 1, 1)
+        }
+    }
+}
+draw();
+</script>
+</body>
+</html>
